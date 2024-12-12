@@ -7,8 +7,8 @@ from streamlit.web.server.websocket_route import add_websocket_route
 app = Flask(__name__)
 
 # 비밀번호와 API 키 설정
-VALID_PASSWORD = "your_secure_password"
-API_KEY = "your_api_key_here"
+VALID_PASSWORD = "1234"
+API_KEY = "1703dff40703ad3b88e94cf037946d6d"
 
 # Flask 경로 설정
 @app.route("/validate", methods=["POST"])
