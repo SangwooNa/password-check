@@ -1,47 +1,23 @@
 import streamlit as st
-from streamlit.web.server import server
 
 # 비밀번호 설정
 PASSWORD = "1234"
 
-# Streamlit 앱 UI
-st.title("Streamlit Login Server")
-st.write("This server authenticates password requests.")
+# Streamlit 앱
+st.title("Password Verification Server")
 
-# 서버 설정
-def configure_server():
-    # Streamlit의 Tornado 웹 서버에 접근
-    from tornado.web import RequestHandler
-    from streamlit.web.server import server
+# 쿼리 파라미터에서 비밀번호 요청 처리
+query_params = st.experimental_get_query_params()
 
-    class LoginHandler(RequestHandler):
-        def set_default_headers(self):
-            self.set_header("Access-Control-Allow-Origin", "*")  # 모든 도메인 허용
-            self.set_header("Access-Control-Allow-Methods", "POST, OPTIONS")
-            self.set_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+if "password" in query_params:
+    # 클라이언트가 비밀번호를 보낸 경우 처리
+    input_password = query_params.get("password")[0]  # 첫 번째 값 가져오기
+    if input_password == PASSWORD:
+        st.success("Login successful!")
+    else:
+        st.error("Login failed!")
+else:
+    st.write("Send a `password` parameter via query to verify.")
 
-        def options(self):
-            self.set_status(204)
-            self.finish()
-
-        def post(self):
-            import json
-            try:
-                # 요청 데이터 파싱
-                data = json.loads(self.request.body)
-                if data.get("password") == PASSWORD:
-                    self.write(json.dumps({"success": True}))
-                else:
-                    self.write(json.dumps({"success": False}))
-            except Exception as e:
-                self.set_status(400)
-                self.write(json.dumps({"error": str(e)}))
-
-    # Tornado 서버에 핸들러 추가
-    app = server.server._http_server._tornado_app
-    app.add_handlers(".*$", [(r"/login", LoginHandler)])
-
-# 서버 구성 실행
-configure_server()
-
-st.write("Send POST requests to the `/login` endpoint to authenticate.")
+# 추가로 HTML 페이지에 URL 제공
+st.write("Use `https://your-streamlit-app-url?password=your_password` to test.")
