@@ -1,34 +1,47 @@
 import streamlit as st
-from flask import Flask, request, jsonify
-from threading import Thread
-
-# Flask 앱 생성
-app = Flask(__name__)
+from streamlit.web.server import server
 
 # 비밀번호 설정
-PASSWORD = "your_password"  # 비밀번호는 여기에서 설정
+PASSWORD = "1234"
 
-@app.route('/login', methods=['POST'])
-def login():
-    # 요청에서 비밀번호 추출
-    data = request.json
-    input_password = data.get("password")
-    # 비밀번호 검증
-    if input_password == PASSWORD:
-        return jsonify({"success": True})
-    else:
-        return jsonify({"success": False})
+# Streamlit 앱 UI
+st.title("Streamlit Login Server")
+st.write("This server authenticates password requests.")
 
-# Streamlit에서 Flask 서버 실행
-def run_flask():
-    app.run(host='0.0.0.0', port=8500)
+# 서버 설정
+def configure_server():
+    # Streamlit의 Tornado 웹 서버에 접근
+    from tornado.web import RequestHandler
+    from streamlit.web.server import server
 
-# Streamlit 앱 시작
-if __name__ == '__main__':
-    st.title("Streamlit Login Server")
-    st.write("This server is for password verification only.")
-    # Flask 서버를 별도 스레드에서 실행
-    thread = Thread(target=run_flask)
-    thread.daemon = True
-    thread.start()
-    st.write("Flask server running on port 8500.")
+    class LoginHandler(RequestHandler):
+        def set_default_headers(self):
+            self.set_header("Access-Control-Allow-Origin", "*")  # 모든 도메인 허용
+            self.set_header("Access-Control-Allow-Methods", "POST, OPTIONS")
+            self.set_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
+
+        def options(self):
+            self.set_status(204)
+            self.finish()
+
+        def post(self):
+            import json
+            try:
+                # 요청 데이터 파싱
+                data = json.loads(self.request.body)
+                if data.get("password") == PASSWORD:
+                    self.write(json.dumps({"success": True}))
+                else:
+                    self.write(json.dumps({"success": False}))
+            except Exception as e:
+                self.set_status(400)
+                self.write(json.dumps({"error": str(e)}))
+
+    # Tornado 서버에 핸들러 추가
+    app = server.server._http_server._tornado_app
+    app.add_handlers(".*$", [(r"/login", LoginHandler)])
+
+# 서버 구성 실행
+configure_server()
+
+st.write("Send POST requests to the `/login` endpoint to authenticate.")
