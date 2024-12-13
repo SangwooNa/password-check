@@ -5,8 +5,8 @@ app = Flask(__name__)
 CORS(app)
 
 # 비밀번호와 Kakao API 키 설정
-PASSWORD = "your_password"
-KAKAO_API_KEY = "your_kakao_api_key_here"
+PASSWORD = "1234"
+KAKAO_API_KEY = "1703dff40703ad3b88e94cf037946d6d"
 
 # 비밀번호 검증 엔드포인트
 @app.route("/login", methods=["POST"])
