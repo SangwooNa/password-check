@@ -17,7 +17,7 @@ def login():
     if input_password == PASSWORD:
         return jsonify({"success": True, "message": "Login successful!"})
     else:
-        return jsonify({"success": False, "message": "Invalid password!"})
+        return jsonify({"success": False, "message": "Invalid password!"}), 401
 
 # API 키 제공 엔드포인트
 @app.route("/get-api-key", methods=["GET"])
@@ -26,4 +26,4 @@ def get_api_key():
     return jsonify({"apiKey": KAKAO_API_KEY})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=5000)
