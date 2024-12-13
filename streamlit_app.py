@@ -1,32 +1,23 @@
-from flask import Flask, request, jsonify
-from flask_cors import CORS  # Flask-CORS 추가
+import streamlit as st
 
-app = Flask(__name__)
-CORS(app)  # 모든 도메인 허용
+# Streamlit 앱 설정
+st.title("Streamlit Login Server")
 
-@app.route('/validate-password', methods=['POST'])
-def validate_password():
-    data = request.json
-    if data.get('password') == '1234':  # 비밀번호 설정
-        return jsonify({"success": True})
-    return jsonify({"success": False, "message": "Invalid password"})
+# 비밀번호 설정
+PASSWORD = "your_password"
 
-@app.route('/fetch-book-info', methods=['POST'])
-def fetch_book_info():
-    data = request.json
-    book_name = data.get('bookName', '')
+# 클라이언트에서 요청 처리
+with st.form("login_form"):
+    st.write("Enter your password:")
+    password = st.text_input("Password", type="password")
+    submit = st.form_submit_button("Submit")
 
-    KAKAO_API_KEY = "YOUR_KAKAO_API_KEY"  # 카카오 API 키
-    headers = {"Authorization": f"KakaoAK {KAKAO_API_KEY}"}
-    url = f"https://dapi.kakao.com/v3/search/book?target=title&query={book_name}"
+# 로그인 확인
+if submit:
+    if password == PASSWORD:
+        st.success("Login successful!")
+    else:
+        st.error("Login failed!")
 
-    response = requests.get(url, headers=headers)
-    if response.status_code == 200:
-        data = response.json()
-        if data['documents']:
-            book = data['documents'][0]
-            return jsonify({"title": book['title'], "author": ", ".join(book['authors'])})
-    return jsonify({"title": "N/A", "author": "N/A"})
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=8501)
+# HTML 설명
+st.write("Use the HTML file to log in.")
